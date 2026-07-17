@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Stock - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title" style="display: flex; align-items: center; gap: 15px;">
+            <img src="../images/logo.png" alt="Logo" style="height: 50px;">
+            <h1>Sanjivani Academy | Stationary Store System</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="monthly_requirement.html">Monthly Requirement</a></li>
+                <li><a href="requirement.html">Yearly Requirement</a></li>
+                <li><a href="purchase.html">Purchase Order</a></li>
+                <li><a href="stock.html" class="active">Stock</a></li>
+                <li><a href="issue.html">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Stock Report</h2>
+        
+        <div class="glass-card" style="margin-bottom: 20px;">
+            <div style="display: flex; gap: 20px; align-items: flex-end;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>Search Item</label>
+                    <input type="text" id="searchInput" placeholder="Type item name to filter..." onkeyup="filterTable()">
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
+            </div>
+        </div>
+
+        <div class="glass-card table-container">
+            <table id="stockTable">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Unit</th>
+                        <th>Total Stock Added</th>
+                        <th>Issued/Sold Stock</th>
+                        <th>Current Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data populated via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>All rights are reserved with Department of Information Technology, Sanjivani University @2026 and this software is made by Souhardya Gayen</p>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Check Auth
+        if (!localStorage.getItem('token')) {
+            window.location.href = '../index.html';
+        }
+
+        async function fetchStock() {
+            try {
+                const res = await api.get('/stock');
+                const tbody = document.querySelector('#stockTable tbody');
+                tbody.innerHTML = '';
+                
+                res.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${r.item}</td>
+                        <td>${r.unit}</td>
+                        <td>${r.total_stock}</td>
+                        <td>${r.issued_stock}</td>
+                        <td style="font-weight: bold; color: var(--accent-color);">${r.balance}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Failed to load stock data:', err);
+            }
+        }
+
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("stockTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Load stock on page load
+        fetchStock();
+    </script>
+</body>
+</html>
