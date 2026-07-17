@@ -39,6 +39,12 @@ body {
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   padding: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card:focus-within {
+  z-index: 10;
 }
 
 /* Header / Navbar */
@@ -119,6 +125,12 @@ h2, h3 {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.form-group:focus-within {
+  z-index: 10;
 }
 .form-group label {
   margin-bottom: 8px;
