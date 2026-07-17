@@ -15,7 +15,7 @@
         <nav>
             <ul>
                 <li><a href="monthly_requirement.html">Monthly Requirement</a></li>
-                <li><a href="requirement.html" class="active">Yearly Requirement</a></li>
+                <li><a href="requirement.html" class="active">Monthly Requirement</a></li>
                 <li><a href="purchase.html">Purchase Order</a></li>
                 <li><a href="stock.html">Stock</a></li>
                 <li><a href="issue.html">Issue</a></li>
@@ -27,7 +27,7 @@
     </header>
 
     <div class="container">
-        <h2>Yearly Requirements Report</h2>
+        <h2>Monthly Requirements Report</h2>
         
         <div class="glass-card" style="margin-bottom: 20px;">
             <form id="filterForm" style="display: flex; gap: 20px; align-items: flex-end;">
@@ -101,7 +101,7 @@
 
         async function fetchReport(college = '', department = '') {
             try {
-                let url = '/reports/requirements/yearly?';
+                let url = '/reports/requirements/monthly?';
                 if (college) url += `college=${encodeURIComponent(college)}&`;
                 if (department) url += `department=${encodeURIComponent(department)}`;
                 

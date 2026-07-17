@@ -8,8 +8,8 @@ const auth = require('../middleware/auth');
 
 router.use(auth);
 
-// GET /api/reports/requirements
-router.get('/requirements', async (req, res) => {
+// GET /api/reports/requirements/yearly
+router.get('/requirements/yearly', async (req, res) => {
   try {
     const { college, department } = req.query;
     let query = {};
@@ -17,6 +17,25 @@ router.get('/requirements', async (req, res) => {
     if (department) query.department = department;
 
     const requirements = await YearlyRequirement.find(query).sort({ date: -1 });
+    
+    const totalAmount = requirements.reduce((acc, curr) => acc + curr.total1, 0);
+
+    res.json({ data: requirements, totalAmount });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/reports/requirements/monthly
+router.get('/requirements/monthly', async (req, res) => {
+  try {
+    const MonthlyRequirement = require('../models/MonthlyRequirement');
+    const { college, department } = req.query;
+    let query = {};
+    if (college) query.college = college;
+    if (department) query.department = department;
+
+    const requirements = await MonthlyRequirement.find(query).sort({ date: -1 });
     
     const totalAmount = requirements.reduce((acc, curr) => acc + curr.total1, 0);
 
