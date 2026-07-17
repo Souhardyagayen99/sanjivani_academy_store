@@ -214,6 +214,8 @@
         document.getElementById('itemForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('msg');
+            const d = new Date();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const data = {
                 ...sessionData,
                 item: document.getElementById('item').value,
@@ -223,7 +225,9 @@
                 total: document.getElementById('total').value,
                 cst: document.getElementById('cst').value,
                 gst: document.getElementById('gst').value,
-                total1: document.getElementById('total1').value
+                total1: document.getElementById('total1').value,
+                month: monthNames[d.getMonth()],
+                year: d.getFullYear().toString()
             };
 
             try {
