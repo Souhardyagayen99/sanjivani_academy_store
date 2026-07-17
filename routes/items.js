@@ -13,8 +13,17 @@ router.get('/', async (req, res) => {
     const query = req.query.q;
     let items;
     if (query) {
-      // Autocomplete search
-      items = await Item.find({ item: { $regex: query, $options: 'i' } }).limit(10);
+      // Autocomplete search (by name or id)
+      const numQuery = parseInt(query);
+      const searchConditions = [
+        { item: { $regex: query, $options: 'i' } }
+      ];
+      
+      if (!isNaN(numQuery)) {
+        searchConditions.push({ item_id: numQuery });
+      }
+
+      items = await Item.find({ $or: searchConditions }).limit(10);
     } else {
       items = await Item.find().sort({ item_id: -1 });
     }

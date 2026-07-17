@@ -134,7 +134,7 @@
                 return;
             }
             try {
-                const items = await api.get(`/items?q=${val}`);
+                const items = await api.get(`/items?q=${encodeURIComponent(val)}`);
                 if (items.length > 0) {
                     itemList.style.display = 'block';
                     items.forEach(i => {

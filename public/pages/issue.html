@@ -148,7 +148,7 @@
                 return;
             }
             try {
-                const items = await api.get(`/items?q=${val}`);
+                const items = await api.get(`/items?q=${encodeURIComponent(val)}`);
                 if (items.length > 0) {
                     itemList.style.display = 'block';
                     items.forEach(i => {
@@ -188,7 +188,7 @@
                 return;
             }
             try {
-                const staff = await api.get(`/staff?q=${val}`);
+                const staff = await api.get(`/staff?q=${encodeURIComponent(val)}`);
                 if (staff.length > 0) {
                     staffList.style.display = 'block';
                     staff.forEach(s => {
