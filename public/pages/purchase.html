@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="requirement.html">Yearly Requirement</a></li>
+                <li><a href="purchase.html" class="active">Purchase Order</a></li>
+                <li><a href="stock.html">Stock</a></li>
+                <li><a href="issue.html">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Purchase Order Form</h2>
+        
+        <div class="glass-card" id="step1" style="max-width: 800px; margin: 0 auto;">
+            <form id="orderForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Order Id</label>
+                        <input type="number" id="order_id" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Institute</label>
+                        <select id="college" required>
+                            <option value="">Select Institute</option>
+                            <option value="Sanjivani Academy, Kopargaon">Sanjivani Academy, Kopargaon</option>
+                            <option value="Sanjivani Academy, Vaijapur">Sanjivani Academy, Vaijapur</option>
+                            <option value="Sanjivani Toddlers, Yeola">Sanjivani Toddlers, Yeola</option>
+                            <option value="Sanjivani International, Shirdi">Sanjivani International, Shirdi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Purchase Order No</label>
+                        <input type="text" id="order_no" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purchase Order Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Supplier Name</label>
+                        <input type="text" id="supplier_name" required>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn">Next (Add Items)</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass-card hidden" id="step2" style="max-width: 800px; margin: 20px auto 0;">
+            <h3 id="poHeader">Add items to PO</h3>
+            <form id="itemForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group" style="position: relative;">
+                        <label>Item Name</label>
+                        <input type="text" id="item" required autocomplete="off">
+                        <div id="itemList" class="autocomplete-items hidden"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="unit" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" id="price" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total (Qty * Price)</label>
+                        <input type="number" id="total" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>CST %</label>
+                        <input type="number" id="cst" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>GST %</label>
+                        <input type="number" id="gst" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Grand Total</label>
+                        <input type="number" id="total1" required readonly>
+                    </div>
+                </div>
+                <div id="msg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn">Save Item to PO</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">New Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.getElementById('date').valueAsDate = new Date();
+        let sessionData = {};
+
+        async function init() {
+            try {
+                const res = await api.get('/purchase/next-id');
+                document.getElementById('order_id').value = res.nextId;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            sessionData = {
+                order_id: document.getElementById('order_id').value,
+                college: document.getElementById('college').value,
+                order_no: document.getElementById('order_no').value,
+                date: document.getElementById('date').value,
+                supplier_name: document.getElementById('supplier_name').value
+            };
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('poHeader').textContent = `Add items to PO: ${sessionData.order_no}`;
+        });
+
+        // Item Autocomplete Logic
+        const itemInput = document.getElementById('item');
+        const itemList = document.getElementById('itemList');
+
+        itemInput.addEventListener('input', async function() {
+            const val = this.value;
+            itemList.innerHTML = '';
+            if (!val) {
+                itemList.classList.add('hidden');
+                return;
+            }
+            try {
+                const items = await api.get(`/items?q=${val}`);
+                if (items.length > 0) {
+                    itemList.classList.remove('hidden');
+                    items.forEach(i => {
+                        const div = document.createElement('div');
+                        div.textContent = i.item;
+                        div.addEventListener('click', () => {
+                            itemInput.value = i.item;
+                            document.getElementById('unit').value = i.unit;
+                            document.getElementById('price').value = i.price;
+                            document.getElementById('cst').value = i.cst;
+                            document.getElementById('gst').value = i.gst;
+                            itemList.classList.add('hidden');
+                            calculateTotal();
+                        });
+                        itemList.appendChild(div);
+                    });
+                } else {
+                    itemList.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== itemInput) itemList.classList.add('hidden');
+        });
+
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const total = qty * price;
+            document.getElementById('total').value = total.toFixed(2);
+
+            const cst = parseFloat(document.getElementById('cst').value) || 0;
+            const gst = parseFloat(document.getElementById('gst').value) || 0;
+            const taxPercent = cst + gst;
+            const totalWithTax = total + ((total * taxPercent) / 100);
+            
+            document.getElementById('total1').value = totalWithTax.toFixed(2);
+        }
+
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('msg');
+            const data = {
+                ...sessionData,
+                item: document.getElementById('item').value,
+                unit: document.getElementById('unit').value,
+                quantity: document.getElementById('quantity').value,
+                price: document.getElementById('price').value,
+                total: document.getElementById('total').value,
+                cst: document.getElementById('cst').value,
+                gst: document.getElementById('gst').value,
+                total1: document.getElementById('total1').value
+            };
+
+            try {
+                await api.post('/purchase', data);
+                msg.textContent = 'Item saved to PO successfully';
+                msg.style.color = 'var(--success-color)';
+                document.getElementById('itemForm').reset();
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = 'var(--danger-color)';
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('orderForm').reset();
+            document.getElementById('itemForm').reset();
+            init();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="requirement.html">Yearly Requirement</a></li>
+                <li><a href="purchase.html">Purchase Order</a></li>
+                <li><a href="stock.html" class="active">Stock</a></li>
+                <li><a href="issue.html">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Stock Form</h2>
+        
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto; margin-bottom: 20px;">
+            <form id="searchForm">
+                <div style="display: flex; gap: 20px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1; position: relative; margin-bottom: 0;">
+                        <label>Item Name</label>
+                        <input type="text" id="itemSearch" autocomplete="off" placeholder="Search Item to View Stock">
+                        <div id="itemList" class="autocomplete-items hidden"></div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='display_stock.html'">View All Stock</button>
+                </div>
+            </form>
+            <div id="stockResult" style="margin-top: 20px; display: none;">
+                <h3 style="text-align: left; margin-bottom: 10px;">Stock Details</h3>
+                <p><strong>Item:</strong> <span id="resItem"></span></p>
+                <p><strong>Total Stock Added:</strong> <span id="resTotal"></span></p>
+                <p><strong>Issued/Sold Stock:</strong> <span id="resIssued"></span></p>
+                <p style="color: var(--accent-color); font-size: 1.2rem; font-weight: bold; margin-top: 10px;"><strong>Current Balance:</strong> <span id="resBalance"></span></p>
+            </div>
+        </div>
+
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <h3 style="text-align: center; margin-bottom: 20px;">Add New Stock</h3>
+            <form id="addStockForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group" style="position: relative;">
+                        <label>Item Name</label>
+                        <input type="text" id="add_item" required autocomplete="off">
+                        <div id="addItemList" class="autocomplete-items hidden"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="unit" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity to Add</label>
+                        <input type="number" id="quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purchase Order No (PON)</label>
+                        <input type="text" id="pon" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" id="supplier_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bill Number</label>
+                        <input type="text" id="bill_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bill Date</label>
+                        <input type="date" id="bill_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Entry</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Remark</label>
+                        <input type="text" id="remark">
+                    </div>
+                </div>
+                <div id="addMsg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
+                <button type="submit" class="btn">Add Stock</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Set today's date
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Autocomplete setup helper
+        function setupAutocomplete(inputId, listId, onSelectCallback) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            input.addEventListener('input', async function() {
+                const val = this.value;
+                list.innerHTML = '';
+                if (!val) {
+                    list.style.display = 'none';
+                    return;
+                }
+                try {
+                    const items = await api.get(`/items?q=${val}`);
+                    if (items.length > 0) {
+                        list.style.display = 'block';
+                        items.forEach(i => {
+                            const div = document.createElement('div');
+                            div.textContent = i.item;
+                            div.addEventListener('click', () => {
+                                input.value = i.item;
+                                list.style.display = 'none';
+                                if(onSelectCallback) onSelectCallback(i);
+                            });
+                            list.appendChild(div);
+                        });
+                    } else {
+                        list.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target !== input) list.style.display = 'none';
+            });
+        }
+
+        // Search Stock logic
+        setupAutocomplete('itemSearch', 'itemList', async (item) => {
+            try {
+                const stock = await api.get(`/stock/${encodeURIComponent(item.item)}`);
+                document.getElementById('stockResult').style.display = 'block';
+                document.getElementById('resItem').textContent = stock.item;
+                document.getElementById('resTotal').textContent = stock.total_stock;
+                document.getElementById('resIssued').textContent = stock.issued_stock;
+                document.getElementById('resBalance').textContent = stock.balance;
+            } catch (err) {
+                alert('Stock details not found for this item yet.');
+            }
+        });
+
+        // Add Stock logic
+        setupAutocomplete('add_item', 'addItemList', (item) => {
+            document.getElementById('unit').value = item.unit;
+        });
+
+        document.getElementById('addStockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('addMsg');
+            
+            const data = {
+                item: document.getElementById('add_item').value,
+                pon: document.getElementById('pon').value,
+                unit: document.getElementById('unit').value,
+                quantity: document.getElementById('quantity').value,
+                date: document.getElementById('date').value,
+                supplier_name: document.getElementById('supplier_name').value,
+                bill_number: document.getElementById('bill_number').value,
+                bill_date: document.getElementById('bill_date').value,
+                remark: document.getElementById('remark').value
+            };
+
+            try {
+                await api.post('/stock/add', data);
+                msg.textContent = 'Stock added successfully';
+                msg.style.color = 'var(--success-color)';
+                document.getElementById('addStockForm').reset();
+                document.getElementById('date').valueAsDate = new Date();
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = 'var(--danger-color)';
+            }
+        });
+    </script>
+</body>
+</html>

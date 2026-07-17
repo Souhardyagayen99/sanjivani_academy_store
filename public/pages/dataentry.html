@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="requirement.html">Yearly Requirement</a></li>
+                <li><a href="purchase.html">Purchase Order</a></li>
+                <li><a href="stock.html">Stock</a></li>
+                <li><a href="issue.html">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html" class="active">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Data Entry Form</h2>
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <form id="dataEntryForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Item ID</label>
+                        <input type="number" id="item_id" required readonly>
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                        <label>Item Name</label>
+                        <input type="text" id="item" required autocomplete="off">
+                        <div id="itemList" class="autocomplete-items hidden" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <select id="unit" required>
+                            <option value="">Select</option>
+                            <option value="Nos">Nos</option>
+                            <option value="mtr">mtr</option>
+                            <option value="pkt">pkt</option>
+                            <option value="Box">Box</option>
+                            <option value="set">set</option>
+                            <option value="pad">pad</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" id="price" step="0.01" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>CST %</label>
+                        <input type="number" id="cst" step="0.01" value="0" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>GST %</label>
+                        <input type="number" id="gst" step="0.01" value="0" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Price (CST&GST)</label>
+                        <input type="number" id="total_price" step="0.01" required readonly>
+                    </div>
+                </div>
+                <div id="msg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
+                <button type="submit" class="btn">Save Item</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Autocomplete Logic
+        const itemInput = document.getElementById('item');
+        const itemList = document.getElementById('itemList');
+
+        itemInput.addEventListener('input', async function() {
+            const val = this.value;
+            itemList.innerHTML = '';
+            if (!val) {
+                itemList.style.display = 'none';
+                return;
+            }
+            try {
+                const items = await api.get(`/items?q=${val}`);
+                if (items.length > 0) {
+                    itemList.style.display = 'block';
+                    items.forEach(i => {
+                        const div = document.createElement('div');
+                        div.textContent = i.item;
+                        div.addEventListener('click', () => {
+                            itemInput.value = i.item;
+                            // Optionally populate other fields if item exists
+                            document.getElementById('unit').value = i.unit || '';
+                            document.getElementById('price').value = i.price || '0';
+                            document.getElementById('cst').value = i.cst || '0';
+                            document.getElementById('gst').value = i.gst || '0';
+                            itemList.style.display = 'none';
+                            calculateTotal();
+                        });
+                        itemList.appendChild(div);
+                    });
+                } else {
+                    itemList.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== itemInput) itemList.style.display = 'none';
+        });
+
+        function calculateTotal() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const cst = parseFloat(document.getElementById('cst').value) || 0;
+            const gst = parseFloat(document.getElementById('gst').value) || 0;
+            const taxPercent = cst + gst;
+            const total = price + ((price * taxPercent) / 100);
+            document.getElementById('total_price').value = total.toFixed(2);
+        }
+
+        async function fetchNextId() {
+            try {
+                const res = await api.get('/items/next-id');
+                document.getElementById('item_id').value = res.nextId;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('dataEntryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('msg');
+            
+            const data = {
+                item_id: document.getElementById('item_id').value,
+                item: document.getElementById('item').value,
+                unit: document.getElementById('unit').value,
+                price: document.getElementById('price').value,
+                cst: document.getElementById('cst').value,
+                gst: document.getElementById('gst').value,
+                total_amount: document.getElementById('total_price').value
+            };
+
+            try {
+                await api.post('/items', data);
+                msg.textContent = '1 record added successfully';
+                msg.style.color = 'var(--success-color)';
+                document.getElementById('dataEntryForm').reset();
+                fetchNextId();
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = 'var(--danger-color)';
+            }
+        });
+
+        // Init
+        fetchNextId();
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sanjivani Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+        <div class="glass-card" style="width: 100%; max-width: 450px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2>Registration Form</h2>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="name" required maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required maxlength="50">
+                </div>
+                <div id="errorMsg" style="color: var(--danger-color); margin-bottom: 15px; font-size: 0.9rem; display: none;"></div>
+                <div id="successMsg" style="color: var(--success-color); margin-bottom: 15px; font-size: 0.9rem; display: none;"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn" style="flex: 1;">Save</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="window.location.href='index.html'">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            try {
+                await api.post('/auth/register', { name, username, password, email });
+                successMsg.textContent = 'User Registered Successfully';
+                successMsg.style.display = 'block';
+                document.getElementById('registerForm').reset();
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

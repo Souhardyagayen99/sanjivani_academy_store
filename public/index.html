@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sanjivani Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+        <div class="glass-card" style="width: 100%; max-width: 400px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="../Sanjivani_Academy_Logo_Small.png" alt="Sanjivani Logo" style="height: 80px; margin-bottom: 15px;" onerror="this.src=''">
+                <h2>Stationary Store System</h2>
+                <p style="color: var(--text-secondary)">Login to continue</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div id="errorMsg" style="color: var(--danger-color); margin-bottom: 15px; font-size: 0.9rem; display: none;"></div>
+                <button type="submit" class="btn" style="width: 100%; margin-bottom: 15px;">Login</button>
+                <div style="text-align: center;">
+                    <a href="register.html" style="color: var(--accent-color); text-decoration: none;">New User? Register here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>All rights are reserved with Department of Information Technology, Sanjivani COE</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            try {
+                const res = await api.post('/auth/login', { username, password });
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('user', JSON.stringify(res.user));
+                window.location.href = 'home.html';
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

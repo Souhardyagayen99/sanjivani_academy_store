@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sanjivani Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <img src="../Sanjivani_Academy_Logo_Small.png" alt="Logo" onerror="this.src=''">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="pages/requirement.html">Yearly Requirement</a></li>
+                <li><a href="pages/purchase.html">Purchase Order</a></li>
+                <li><a href="pages/stock.html">Stock</a></li>
+                <li><a href="pages/issue.html">Issue</a></li>
+                <li><a href="pages/sell.html">Sell</a></li>
+                <li><a href="pages/dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </header>
+
+    <div class="container">
+        <h2>Stationary Store Management System</h2>
+        
+        <div class="dashboard-grid">
+            <a href="pages/requirement.html" class="glass-card dash-card">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>Requirements</h3>
+                <p style="color: var(--text-secondary)">Manage Yearly & Monthly requirements</p>
+            </a>
+            
+            <a href="pages/purchase.html" class="glass-card dash-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Purchase Orders</h3>
+                <p style="color: var(--text-secondary)">Create and view purchase orders</p>
+            </a>
+            
+            <a href="pages/stock.html" class="glass-card dash-card">
+                <i class="fas fa-boxes"></i>
+                <h3>Stock Inventory</h3>
+                <p style="color: var(--text-secondary)">Check availability and add stock</p>
+            </a>
+            
+            <a href="pages/issue.html" class="glass-card dash-card">
+                <i class="fas fa-hand-holding"></i>
+                <h3>Issue Items</h3>
+                <p style="color: var(--text-secondary)">Issue stock to staff and departments</p>
+            </a>
+            
+            <a href="pages/sell.html" class="glass-card dash-card">
+                <i class="fas fa-rupee-sign"></i>
+                <h3>Sell Items</h3>
+                <p style="color: var(--text-secondary)">Record stationary sales</p>
+            </a>
+            
+            <a href="pages/dataentry.html" class="glass-card dash-card">
+                <i class="fas fa-database"></i>
+                <h3>Data Entry</h3>
+                <p style="color: var(--text-secondary)">Manage item master data</p>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>All rights are reserved with Department of Information Technology, Sanjivani COE</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+</body>
+</html>

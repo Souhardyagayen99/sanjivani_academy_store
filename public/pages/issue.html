@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Items - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="requirement.html">Yearly Requirement</a></li>
+                <li><a href="purchase.html">Purchase Order</a></li>
+                <li><a href="stock.html">Stock</a></li>
+                <li><a href="issue.html" class="active">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Issue Items</h2>
+        
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <form id="issueForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Indent No.</label>
+                        <input type="number" id="indent_no" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Institute</label>
+                        <select id="institute" required onchange="populateDepartments()">
+                            <option value="">Select Institute</option>
+                            <option value="Sanjivani Academy, Kopargaon">Sanjivani Academy, Kopargaon</option>
+                            <option value="Sanjivani Academy, Vaijapur">Sanjivani Academy, Vaijapur</option>
+                            <option value="Sanjivani Toddlers, Yeola">Sanjivani Toddlers, Yeola</option>
+                            <option value="Sanjivani International, Shirdi">Sanjivani International, Shirdi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Section/Department</label>
+                        <select id="department" required></select>
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>Item Name</label>
+                        <input type="text" id="item" required autocomplete="off">
+                        <div id="itemList" class="autocomplete-items hidden" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="unit" required readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" required oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" id="price" required readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Amount</label>
+                        <input type="number" id="total_amount" required readonly>
+                    </div>
+                    
+                    <div class="form-group" style="position: relative;">
+                        <label>Issued To (Name)</label>
+                        <input type="text" id="issued_by" required autocomplete="off">
+                        <div id="staffList" class="autocomplete-items hidden" style="display:none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Receipt No (Optional)</label>
+                        <input type="text" id="receipt_no" value="-">
+                    </div>
+                </div>
+                
+                <div id="msg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn">Issue Item</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='display_issue.html'">Display Issued</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.getElementById('date').valueAsDate = new Date();
+
+        const departments = {
+            "Sanjivani Academy, Kopargaon": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani Academy, Vaijapur": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani Toddlers, Yeola": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani International, Shirdi": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"]
+        };
+
+        function populateDepartments() {
+            const inst = document.getElementById('institute').value;
+            const deptSelect = document.getElementById('department');
+            deptSelect.innerHTML = '';
+            if (departments[inst]) {
+                departments[inst].forEach(d => {
+                    deptSelect.add(new Option(d, d));
+                });
+            }
+        }
+
+        async function init() {
+            try {
+                const res = await api.get('/issue/next-id');
+                document.getElementById('indent_no').value = res.nextId;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Autocomplete
+        const itemInput = document.getElementById('item');
+        const itemList = document.getElementById('itemList');
+
+        itemInput.addEventListener('input', async function() {
+            const val = this.value;
+            itemList.innerHTML = '';
+            if (!val) {
+                itemList.style.display = 'none';
+                return;
+            }
+            try {
+                const items = await api.get(`/items?q=${val}`);
+                if (items.length > 0) {
+                    itemList.style.display = 'block';
+                    items.forEach(i => {
+                        const div = document.createElement('div');
+                        div.textContent = i.item;
+                        div.addEventListener('click', () => {
+                            itemInput.value = i.item;
+                            document.getElementById('unit').value = i.unit;
+                            // For issue, we might use the master price or total price with tax. Using total_amount here per original logic.
+                            document.getElementById('price').value = i.total_amount; 
+                            itemList.style.display = 'none';
+                            calculateTotal();
+                        });
+                        itemList.appendChild(div);
+                    });
+                } else {
+                    itemList.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== itemInput) itemList.style.display = 'none';
+        });
+
+        // Staff Autocomplete
+        const staffInput = document.getElementById('issued_by');
+        const staffList = document.getElementById('staffList');
+
+        staffInput.addEventListener('input', async function() {
+            const val = this.value;
+            staffList.innerHTML = '';
+            if (!val) {
+                staffList.style.display = 'none';
+                return;
+            }
+            try {
+                const staff = await api.get(`/staff?q=${val}`);
+                if (staff.length > 0) {
+                    staffList.style.display = 'block';
+                    staff.forEach(s => {
+                        const div = document.createElement('div');
+                        div.textContent = s.name;
+                        div.addEventListener('click', () => {
+                            staffInput.value = s.name;
+                            staffList.style.display = 'none';
+                        });
+                        staffList.appendChild(div);
+                    });
+                } else {
+                    staffList.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== staffInput) staffList.style.display = 'none';
+        });
+
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            document.getElementById('total_amount').value = (qty * price).toFixed(2);
+        }
+
+        document.getElementById('issueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('msg');
+            
+            const data = {
+                indent_no: document.getElementById('indent_no').value,
+                institute: document.getElementById('institute').value,
+                department: document.getElementById('department').value,
+                item: document.getElementById('item').value,
+                unit: document.getElementById('unit').value,
+                quantity: document.getElementById('quantity').value,
+                price: document.getElementById('price').value,
+                total_amount: document.getElementById('total_amount').value,
+                receipt_no: document.getElementById('receipt_no').value,
+                date: document.getElementById('date').value,
+                issued_by: document.getElementById('issued_by').value
+            };
+
+            try {
+                await api.post('/issue', data);
+                msg.textContent = 'Item issued successfully';
+                msg.style.color = 'var(--success-color)';
+                // Don't reset institute/dept/date for convenience
+                document.getElementById('item').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('total_amount').value = '';
+                init(); // get next id
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = 'var(--danger-color)';
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

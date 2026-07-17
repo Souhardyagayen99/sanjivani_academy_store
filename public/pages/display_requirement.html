@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Requirements - Sanjivani Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>SANJIVANI GROUP OF INSTITUTES</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="requirement.html" class="active">Yearly Requirement</a></li>
+                <li><a href="purchase.html">Purchase Order</a></li>
+                <li><a href="stock.html">Stock</a></li>
+                <li><a href="issue.html">Issue</a></li>
+                <li><a href="sell.html">Sell</a></li>
+                <li><a href="dataentry.html">Data Entry</a></li>
+            </ul>
+        </nav>
+        <button id="logoutBtn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Home</button>
+    </header>
+
+    <div class="container">
+        <h2>Yearly Requirements Report</h2>
+        
+        <div class="glass-card" style="margin-bottom: 20px;">
+            <form id="filterForm" style="display: flex; gap: 20px; align-items: flex-end;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>Institute</label>
+                    <select id="college" onchange="populateDepartments()">
+                        <option value="">All Institutes</option>
+                        <option value="Sanjivani Academy, Kopargaon">Sanjivani Academy, Kopargaon</option>
+                        <option value="Sanjivani Academy, Vaijapur">Sanjivani Academy, Vaijapur</option>
+                        <option value="Sanjivani Toddlers, Yeola">Sanjivani Toddlers, Yeola</option>
+                        <option value="Sanjivani International, Shirdi">Sanjivani International, Shirdi</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>Department</label>
+                    <select id="department">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Filter</button>
+                <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+            </form>
+        </div>
+
+        <div class="table-container glass-card">
+            <table id="reportTable">
+                <thead>
+                    <tr>
+                        <th>College</th>
+                        <th>Department</th>
+                        <th>Item Name</th>
+                        <th>Unit</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>CST%</th>
+                        <th>GST%</th>
+                        <th>Total(Tax)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data injected here -->
+                </tbody>
+            </table>
+            <div style="text-align: right; margin-top: 20px; font-size: 1.2rem;">
+                <strong>Grand Total: ₹<span id="grandTotal">0.00</span></strong>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const departments = {
+            "Sanjivani Academy, Kopargaon": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani Academy, Vaijapur": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani Toddlers, Yeola": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"],
+            "Sanjivani International, Shirdi": ["Preprimary", "Primary", "Middle", "Secondary", "Admin", "Library", "Exam", "Art Room", "Sports"]
+        };
+
+        function populateDepartments() {
+            const inst = document.getElementById('college').value;
+            const deptSelect = document.getElementById('department');
+            deptSelect.innerHTML = '<option value="">All Departments</option>';
+            if (departments[inst]) {
+                departments[inst].forEach(d => {
+                    deptSelect.add(new Option(d, d));
+                });
+            }
+        }
+
+        async function fetchReport(college = '', department = '') {
+            try {
+                let url = '/reports/requirements?';
+                if (college) url += `college=${encodeURIComponent(college)}&`;
+                if (department) url += `department=${encodeURIComponent(department)}`;
+                
+                const res = await api.get(url);
+                const tbody = document.querySelector('#reportTable tbody');
+                tbody.innerHTML = '';
+                
+                res.data.forEach(r => {
+                    const dateStr = new Date(r.date).toLocaleDateString();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${r.college}</td>
+                        <td>${r.department}</td>
+                        <td>${r.item}</td>
+                        <td>${r.unit}</td>
+                        <td>${r.quantity}</td>
+                        <td>${r.prize}</td>
+                        <td>${r.total}</td>
+                        <td>${r.cst}</td>
+                        <td>${r.gst}</td>
+                        <td>${r.total1}</td>
+                        <td>${dateStr}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                document.getElementById('grandTotal').textContent = res.totalAmount.toFixed(2);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('filterForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            fetchReport(
+                document.getElementById('college').value,
+                document.getElementById('department').value
+            );
+        });
+
+        // Init load all
+        fetchReport();
+    </script>
+</body>
+</html>
