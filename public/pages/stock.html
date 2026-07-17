@@ -46,10 +46,11 @@
             <div id="stockResult" style="margin-top: 20px; display: none;">
                 <h3 style="text-align: left; margin-bottom: 10px;">Stock Details</h3>
                 <p><strong>Item:</strong> <span id="resItem"></span></p>
+                <p><strong>Opening Balance:</strong> <span id="resOpening"></span></p>
                 <p><strong>Total Stock Added:</strong> <span id="resTotal"></span></p>
                 <p><strong>Issued/Sold Stock:</strong> <span id="resIssued"></span></p>
                 <p style="color: var(--accent-color); font-size: 1.2rem; font-weight: bold; margin-top: 10px;">
-                    <strong>Current Balance:</strong> <span id="resBalance"></span></p>
+                    <strong>Closing Balance:</strong> <span id="resBalance"></span></p>
             </div>
         </div>
 
@@ -159,6 +160,7 @@
                 const stock = await api.get(`/stock/${encodeURIComponent(item.item)}`);
                 document.getElementById('stockResult').style.display = 'block';
                 document.getElementById('resItem').textContent = stock.item;
+                document.getElementById('resOpening').textContent = stock.opening_balance || 0;
                 document.getElementById('resTotal').textContent = stock.total_stock;
                 document.getElementById('resIssued').textContent = stock.issued_stock;
                 document.getElementById('resBalance').textContent = stock.balance;

@@ -51,9 +51,10 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Unit</th>
+                        <th>Opening Balance</th>
                         <th>Total Stock Added</th>
                         <th>Issued/Sold Stock</th>
-                        <th>Current Balance</th>
+                        <th>Closing Balance</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,6 +87,7 @@
                     tr.innerHTML = `
                         <td>${r.item}</td>
                         <td>${r.unit}</td>
+                        <td>${r.opening_balance || 0}</td>
                         <td>${r.total_stock}</td>
                         <td>${r.issued_stock}</td>
                         <td style="font-weight: bold; color: var(--accent-color);">${r.balance}</td>

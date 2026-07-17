@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
 const { StockDetail, StockHistory } = require('../models/Stock');
+const OpeningBalance = require('../models/OpeningBalance');
 const auth = require('../middleware/auth');
 
 router.use(auth);
@@ -9,8 +10,22 @@ router.use(auth);
 // GET /api/stock (List all stock details)
 router.get('/', async (req, res) => {
   try {
-    const stock = await StockDetail.find();
-    res.json(stock);
+    const stock = await StockDetail.find().lean();
+    const openingBalances = await OpeningBalance.find().lean();
+    
+    const openingBalanceMap = {};
+    openingBalances.forEach(ob => {
+       openingBalanceMap[ob.item] = ob.total_stock;
+    });
+
+    const result = stock.map(s => {
+       return {
+           ...s,
+           opening_balance: openingBalanceMap[s.item] || 0
+       };
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -19,9 +34,10 @@ router.get('/', async (req, res) => {
 // GET /api/stock/:itemName
 router.get('/:itemName', async (req, res) => {
   try {
-    const stock = await StockDetail.findOne({ item: req.params.itemName });
+    const stock = await StockDetail.findOne({ item: req.params.itemName }).lean();
     if (!stock) return res.status(404).json({ error: 'Stock not found' });
-    res.json(stock);
+    const ob = await OpeningBalance.findOne({ item: req.params.itemName }).lean();
+    res.json({ ...stock, opening_balance: ob ? ob.total_stock : 0 });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
