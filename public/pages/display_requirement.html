@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,11 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="header-title">
-            <h1>SANJIVANI UNIVERSITY</h1>
+            <h1>Sanjivani Academy</h1>
         </div>
         <nav>
             <ul>
@@ -28,7 +30,7 @@
 
     <div class="container">
         <h2>Yearly Requirements Report</h2>
-        
+
         <div class="glass-card" style="margin-bottom: 20px;">
             <form id="filterForm" style="display: flex; gap: 20px; align-items: flex-end;">
                 <div class="form-group" style="flex: 1; margin-bottom: 0;">
@@ -104,11 +106,11 @@
                 let url = '/reports/requirements/yearly?';
                 if (college) url += `college=${encodeURIComponent(college)}&`;
                 if (department) url += `department=${encodeURIComponent(department)}`;
-                
+
                 const res = await api.get(url);
                 const tbody = document.querySelector('#reportTable tbody');
                 tbody.innerHTML = '';
-                
+
                 res.data.forEach(r => {
                     const dateStr = new Date(r.date).toLocaleDateString();
                     const tr = document.createElement('tr');
@@ -127,7 +129,7 @@
                     `;
                     tbody.appendChild(tr);
                 });
-                
+
                 document.getElementById('grandTotal').textContent = res.totalAmount.toFixed(2);
             } catch (err) {
                 console.error(err);
@@ -146,5 +148,5 @@
         fetchReport();
     </script>
 </body>
-</html>
 
+</html>

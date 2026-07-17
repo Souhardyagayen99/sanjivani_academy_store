@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,11 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="header-title">
-            <h1>SANJIVANI UNIVERSITY</h1>
+            <h1>Sanjivani Academy</h1>
         </div>
         <nav>
             <ul>
@@ -28,7 +30,7 @@
 
     <div class="container">
         <h2>Stock Form</h2>
-        
+
         <div class="glass-card" style="max-width: 800px; margin: 0 auto; margin-bottom: 20px;">
             <form id="searchForm">
                 <div style="display: flex; gap: 20px; align-items: flex-end;">
@@ -37,7 +39,8 @@
                         <input type="text" id="itemSearch" autocomplete="off" placeholder="Search Item to View Stock">
                         <div id="itemList" class="autocomplete-items hidden"></div>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='display_stock.html'">View All Stock</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.location.href='display_stock.html'">View All Stock</button>
                 </div>
             </form>
             <div id="stockResult" style="margin-top: 20px; display: none;">
@@ -45,7 +48,8 @@
                 <p><strong>Item:</strong> <span id="resItem"></span></p>
                 <p><strong>Total Stock Added:</strong> <span id="resTotal"></span></p>
                 <p><strong>Issued/Sold Stock:</strong> <span id="resIssued"></span></p>
-                <p style="color: var(--accent-color); font-size: 1.2rem; font-weight: bold; margin-top: 10px;"><strong>Current Balance:</strong> <span id="resBalance"></span></p>
+                <p style="color: var(--accent-color); font-size: 1.2rem; font-weight: bold; margin-top: 10px;">
+                    <strong>Current Balance:</strong> <span id="resBalance"></span></p>
             </div>
         </div>
 
@@ -107,7 +111,7 @@
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
 
-            input.addEventListener('input', async function() {
+            input.addEventListener('input', async function () {
                 const val = this.value;
                 list.innerHTML = '';
                 if (!val) {
@@ -124,7 +128,7 @@
                             div.addEventListener('click', () => {
                                 input.value = i.item;
                                 list.style.display = 'none';
-                                if(onSelectCallback) onSelectCallback(i);
+                                if (onSelectCallback) onSelectCallback(i);
                             });
                             list.appendChild(div);
                         });
@@ -163,7 +167,7 @@
         document.getElementById('addStockForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('addMsg');
-            
+
             const data = {
                 item: document.getElementById('add_item').value,
                 pon: document.getElementById('pon').value,
@@ -189,5 +193,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

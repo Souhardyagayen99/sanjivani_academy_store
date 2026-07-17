@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,11 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="header-title">
-            <h1>SANJIVANI UNIVERSITY</h1>
+            <h1>Sanjivani Academy</h1>
         </div>
         <nav>
             <ul>
@@ -28,11 +30,11 @@
 
     <div class="container">
         <h2>Sell Items</h2>
-        
+
         <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
             <form id="sellForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    
+
                     <div class="form-group">
                         <label>Student/Buyer Name</label>
                         <input type="text" id="name" required>
@@ -41,7 +43,7 @@
                         <label>Date</label>
                         <input type="date" id="date" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Institute</label>
                         <select id="college" required onchange="populateDepartments()">
@@ -80,18 +82,19 @@
                         <label>Total Amount</label>
                         <input type="number" id="amount" required readonly>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Receipt No</label>
                         <input type="text" id="receipt" required>
                     </div>
                 </div>
-                
+
                 <div id="msg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
-                
+
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="submit" class="btn">Record Sale</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='display_sell.html'">Display Sales</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.location.href='display_sell.html'">Display Sales</button>
                 </div>
             </form>
         </div>
@@ -123,7 +126,7 @@
         const itemInput = document.getElementById('item');
         const itemList = document.getElementById('itemList');
 
-        itemInput.addEventListener('input', async function() {
+        itemInput.addEventListener('input', async function () {
             const val = this.value;
             itemList.innerHTML = '';
             if (!val) {
@@ -141,7 +144,7 @@
                             itemInput.value = i.item;
                             document.getElementById('unit').value = i.unit;
                             // Set base price as default selling price
-                            document.getElementById('price').value = i.total_amount; 
+                            document.getElementById('price').value = i.total_amount;
                             itemList.style.display = 'none';
                             calculateTotal();
                         });
@@ -168,7 +171,7 @@
         document.getElementById('sellForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('msg');
-            
+
             const data = {
                 name: document.getElementById('name').value,
                 college: document.getElementById('college').value,
@@ -186,7 +189,7 @@
                 await api.post('/sell', data);
                 msg.textContent = 'Sale recorded successfully';
                 msg.style.color = 'var(--success-color)';
-                
+
                 document.getElementById('item').value = '';
                 document.getElementById('quantity').value = '';
                 document.getElementById('price').value = '';
@@ -198,5 +201,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

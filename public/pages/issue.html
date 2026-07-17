@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,11 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="header-title">
-            <h1>SANJIVANI UNIVERSITY</h1>
+            <h1>Sanjivani Academy</h1>
         </div>
         <nav>
             <ul>
@@ -28,7 +30,7 @@
 
     <div class="container">
         <h2>Issue Items</h2>
-        
+
         <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
             <form id="issueForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -40,7 +42,7 @@
                         <label>Date</label>
                         <input type="date" id="date" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Institute</label>
                         <select id="institute" required onchange="populateDepartments()">
@@ -79,24 +81,25 @@
                         <label>Total Amount</label>
                         <input type="number" id="total_amount" required readonly>
                     </div>
-                    
+
                     <div class="form-group" style="position: relative;">
                         <label>Issued To (Name)</label>
                         <input type="text" id="issued_by" required autocomplete="off">
                         <div id="staffList" class="autocomplete-items hidden" style="display:none;"></div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Receipt No (Optional)</label>
                         <input type="text" id="receipt_no" value="-">
                     </div>
                 </div>
-                
+
                 <div id="msg" style="margin-bottom: 15px; font-size: 0.9rem;"></div>
-                
+
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="submit" class="btn">Issue Item</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='display_issue.html'">Display Issued</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.location.href='display_issue.html'">Display Issued</button>
                 </div>
             </form>
         </div>
@@ -137,7 +140,7 @@
         const itemInput = document.getElementById('item');
         const itemList = document.getElementById('itemList');
 
-        itemInput.addEventListener('input', async function() {
+        itemInput.addEventListener('input', async function () {
             const val = this.value;
             itemList.innerHTML = '';
             if (!val) {
@@ -155,7 +158,7 @@
                             itemInput.value = i.item;
                             document.getElementById('unit').value = i.unit;
                             // For issue, we might use the master price or total price with tax. Using total_amount here per original logic.
-                            document.getElementById('price').value = i.total_amount; 
+                            document.getElementById('price').value = i.total_amount;
                             itemList.style.display = 'none';
                             calculateTotal();
                         });
@@ -177,7 +180,7 @@
         const staffInput = document.getElementById('issued_by');
         const staffList = document.getElementById('staffList');
 
-        staffInput.addEventListener('input', async function() {
+        staffInput.addEventListener('input', async function () {
             const val = this.value;
             staffList.innerHTML = '';
             if (!val) {
@@ -218,7 +221,7 @@
         document.getElementById('issueForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('msg');
-            
+
             const data = {
                 indent_no: document.getElementById('indent_no').value,
                 institute: document.getElementById('institute').value,
@@ -252,5 +255,5 @@
         init();
     </script>
 </body>
-</html>
 
+</html>
