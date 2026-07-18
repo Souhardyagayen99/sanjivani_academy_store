@@ -260,3 +260,93 @@ footer {
 .autocomplete-items div:hover {
   background-color: var(--card-border);
 }
+
+/* Responsive Design for Mobile Devices */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .header-title {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .header-title img {
+    height: 40px !important;
+  }
+
+  .header-title h1 {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  nav ul li a {
+    font-size: 0.9rem;
+    padding: 5px;
+    display: inline-block;
+  }
+
+  #logoutBtn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .container {
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .glass-card {
+    padding: 20px 15px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Override inline grid styles for forms on mobile */
+  div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  th, td {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .table-container {
+    margin-top: 15px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  input, select {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  /* Handle button groups in forms */
+  form div[style*="display: flex"] {
+    flex-direction: column;
+  }
+}
